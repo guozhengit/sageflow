@@ -1,0 +1,23 @@
+# Pod Disruption Budget - Backend
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: sageflow
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend
+---
+# Pod Disruption Budget - Frontend
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: sageflow
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend

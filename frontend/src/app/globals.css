@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 深色主题 (默认) */
+:root {
+  --background-primary: #052e16;
+  --background-secondary: #14532d;
+  --background-tertiary: #166534;
+  --text-primary: #ffffff;
+  --text-secondary: #bbf7d0;
+  --text-muted: #86efac;
+  --border-color: #166534;
+  --accent-color: #22c55e;
+}
+
+/* 浅色主题 */
+.light {
+  --background-primary: #f0fdf4;
+  --background-secondary: #ffffff;
+  --background-tertiary: #dcfce7;
+  --text-primary: #14532d;
+  --text-secondary: #166534;
+  --text-muted: #15803d;
+  --border-color: #bbf7d0;
+  --accent-color: #16a34a;
+}
+
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

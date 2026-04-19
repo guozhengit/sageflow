@@ -1,0 +1,28 @@
+# SageFlow ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sageflow-config
+  namespace: sageflow
+data:
+  # 数据库配置
+  DATABASE_URL: "postgresql://sageflow:$(DB_PASSWORD)@postgres:5432/sageflow"
+
+  # Qdrant 配置
+  QDRANT_URL: "http://qdrant:6333"
+  QDRANT_COLLECTION: "sageflow_docs"
+
+  # Redis 配置
+  REDIS_URL: "redis://redis:6379/0"
+
+  # Ollama 配置
+  OLLAMA_URL: "http://ollama:11434"
+  LLM_MODEL: "qwen2.5:3b"
+
+  # 应用配置
+  APP_NAME: "SageFlow"
+  APP_VERSION: "0.7.0"
+  DEBUG: "false"
+
+  # CORS 配置
+  ALLOWED_ORIGINS: "https://sageflow.example.com"
