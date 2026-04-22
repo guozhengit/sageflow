@@ -17,8 +17,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -144,6 +144,12 @@ Desktop.ini
 # Uploaded files (development)
 uploads/
 
+# Qwen AI assistant
+.qwen/
+
+# Claude Code
+.claude/
+
 # Generated files
 *.pyc
 *.pyo
@@ -156,8 +162,8 @@ alembic/versions/__pycache__/
 celerybeat-schedule
 celerybeat.pid
 
-# Embedding models cache
-models/
+# Embedding models cache (root level only)
+/models/
 *.bin
 
 # Test artifacts
