@@ -1,17 +1,19 @@
 """用户 API 路由"""
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime
 from typing import Optional
-from app.core.database import get_db
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.auth import create_access_token, get_current_user, require_admin
-from app.services.user_service import user_service
+from app.core.database import get_db
 from app.models.user import User
+from app.services.user_service import user_service
 
 router = APIRouter()
 
 
-# Pydantic 模型
 class UserRegister(BaseModel):
     """用户注册请求"""
     username: str = Field(..., min_length=3, max_length=50, description="用户名")
@@ -37,35 +39,33 @@ class UserProfile(BaseModel):
     username: str = Field(..., description="用户名")
     email: str = Field(..., description="邮箱")
     preferences: dict = Field(default={}, description="用户偏好设置")
+    created_at: Optional[datetime] = Field(None, description="创建时间")
 
 
-# API 端点
 @router.post("/register", response_model=UserProfile, summary="用户注册", description="创建新用户账号")
 async def register(request: UserRegister, db: AsyncSession = Depends(get_db)):
     """用户注册"""
-    # 检查用户名是否已存在
     existing = await user_service.get_by_username(db, request.username)
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists")
-    
-    # 检查邮箱是否已存在
+
     existing = await user_service.get_by_email(db, request.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email already exists")
-    
-    # 创建用户
+
     user = await user_service.create_user(
-        db, 
+        db,
         username=request.username,
         email=request.email,
         password=request.password
     )
-    
+
     return UserProfile(
         id=str(user.id),
         username=user.username,
         email=user.email,
-        preferences=user.preferences or {}
+        preferences=user.preferences or {},
+        created_at=user.created_at,
     )
 
 
@@ -78,21 +78,20 @@ async def login(request: UserLogin, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
-    
+
     token = create_access_token(data={"sub": user.username})
     return TokenResponse(access_token=token)
 
 
 @router.get("/profile", response_model=UserProfile, summary="获取用户信息", description="获取当前登录用户的详细信息")
-async def get_profile(
-    current_user: User = Depends(get_current_user)
-):
+async def get_profile(current_user: User = Depends(get_current_user)):
     """获取当前用户画像"""
     return UserProfile(
         id=str(current_user.id),
         username=current_user.username,
         email=current_user.email,
-        preferences=current_user.preferences or {}
+        preferences=current_user.preferences or {},
+        created_at=current_user.created_at,
     )
 
 
@@ -100,6 +99,7 @@ async def get_profile(
 async def list_users(db: AsyncSession = Depends(get_db)):
     """获取用户列表 (管理员)"""
     from sqlalchemy import select
+
     result = await db.execute(select(User))
     users = result.scalars().all()
     return {
@@ -109,7 +109,7 @@ async def list_users(db: AsyncSession = Depends(get_db)):
                 "username": u.username,
                 "email": u.email,
                 "is_active": u.is_active,
-                "is_admin": getattr(u, 'is_admin', False)
+                "is_admin": getattr(u, "is_admin", False),
             }
             for u in users
         ]

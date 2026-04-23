@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { userApi } from '@/lib/services'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function LoginPage() {
-  const router = useRouter()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,10 +16,9 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      await userApi.login(formData)
-      router.push('/chat')
+      await login(formData.username, formData.password)
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Login failed. Please try again.')
+      setError(err.response?.data?.detail || err.response?.data?.error?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -87,17 +85,13 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sage-400">
               Don't have an account?{' '}
-              <Link href="/register" className="text-sage-400 hover:text-sage-300 underline">
-                Sign up
-              </Link>
+              <Link href="/register" className="text-sage-400 hover:text-sage-300 underline">Sign up</Link>
             </p>
           </div>
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sage-500 hover:text-sage-400 text-sm">
-            ← Back to Home
-          </Link>
+          <Link href="/" className="text-sage-500 hover:text-sage-400 text-sm">← Back to Home</Link>
         </div>
       </div>
     </div>
